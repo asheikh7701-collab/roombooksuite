@@ -31,7 +31,7 @@ interface AppContextType {
   updateProfile: (updates: { fullName?: string; email?: string; department?: string; phone?: string; notificationEmail?: boolean; notificationPush?: boolean }) => Promise<void>;
   createUser: (payload: { email: string; password: string; fullName: string; department?: string; jobTitle?: string; role: "user" | "admin"; permissions: UserPermissions }) => Promise<void>;
   updateUserAccess: (userId: string, updates: { status?: "active" | "inactive"; role?: "user" | "admin"; permissions?: UserPermissions }) => Promise<void>;
-  addReservation: (res: Omit<Reservation, "id" | "createdAt" | "bookedBy" | "roomName" | "floor">) => Promise<void>;
+  addReservation: (res: Omit<Reservation, "id" | "createdAt" | "bookedBy" | "roomName" | "floor"> & { userId?: string }) => Promise<void>;
   cancelReservation: (id: string) => Promise<void>;
   updateReservation: (id: string, updates: Partial<Reservation>) => Promise<void>;
   addRoom: (room: Omit<Room, "id">) => Promise<void>;
