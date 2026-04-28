@@ -33,6 +33,13 @@ export interface Reservation {
   createdAt: string;
 }
 
+export interface UserPermissions {
+  canViewDashboard: boolean;
+  canBookRooms: boolean;
+  canViewReservations: boolean;
+  canManageProfile: boolean;
+}
+
 export interface AppUser {
   id: string;
   name: string;
@@ -42,6 +49,7 @@ export interface AppUser {
   joinedAt: string;
   totalBookings: number;
   status: "active" | "inactive";
+  permissions: UserPermissions;
 }
 
 export const ROOMS: Room[] = [
@@ -207,12 +215,12 @@ export const INITIAL_RESERVATIONS: Reservation[] = [
 ];
 
 export const USERS: AppUser[] = [
-  { id: "u1", name: "Alex Sterling", email: "alex@company.com", role: "user", department: "Product", joinedAt: "2023-06-15", totalBookings: 42, status: "active" },
-  { id: "u2", name: "Sarah Chen", email: "sarah@company.com", role: "user", department: "Design", joinedAt: "2023-08-20", totalBookings: 35, status: "active" },
-  { id: "u3", name: "James Wilson", email: "james@company.com", role: "user", department: "Engineering", joinedAt: "2023-03-10", totalBookings: 28, status: "active" },
-  { id: "u4", name: "Emma Davis", email: "emma@company.com", role: "user", department: "Marketing", joinedAt: "2024-01-05", totalBookings: 18, status: "active" },
-  { id: "u5", name: "Michael Brown", email: "michael@company.com", role: "admin", department: "Operations", joinedAt: "2023-01-01", totalBookings: 12, status: "active" },
-  { id: "u6", name: "Lisa Park", email: "lisa@company.com", role: "user", department: "HR", joinedAt: "2024-02-15", totalBookings: 8, status: "inactive" },
+  { id: "u1", name: "Alex Sterling", email: "alex@company.com", role: "user", department: "Product", joinedAt: "2023-06-15", totalBookings: 42, status: "active", permissions: { canViewDashboard: true, canBookRooms: true, canViewReservations: true, canManageProfile: true } },
+  { id: "u2", name: "Sarah Chen", email: "sarah@company.com", role: "user", department: "Design", joinedAt: "2023-08-20", totalBookings: 35, status: "active", permissions: { canViewDashboard: true, canBookRooms: true, canViewReservations: true, canManageProfile: true } },
+  { id: "u3", name: "James Wilson", email: "james@company.com", role: "user", department: "Engineering", joinedAt: "2023-03-10", totalBookings: 28, status: "active", permissions: { canViewDashboard: true, canBookRooms: true, canViewReservations: true, canManageProfile: true } },
+  { id: "u4", name: "Emma Davis", email: "emma@company.com", role: "user", department: "Marketing", joinedAt: "2024-01-05", totalBookings: 18, status: "active", permissions: { canViewDashboard: true, canBookRooms: true, canViewReservations: true, canManageProfile: true } },
+  { id: "u5", name: "Michael Brown", email: "michael@company.com", role: "admin", department: "Operations", joinedAt: "2023-01-01", totalBookings: 12, status: "active", permissions: { canViewDashboard: true, canBookRooms: true, canViewReservations: true, canManageProfile: true } },
+  { id: "u6", name: "Lisa Park", email: "lisa@company.com", role: "user", department: "HR", joinedAt: "2024-02-15", totalBookings: 8, status: "inactive", permissions: { canViewDashboard: true, canBookRooms: true, canViewReservations: true, canManageProfile: true } },
 ];
 
 export const TIME_SLOTS = [
