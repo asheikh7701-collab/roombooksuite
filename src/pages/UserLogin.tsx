@@ -1,18 +1,41 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Eye, EyeOff, Mail, Lock, ArrowRight, DoorOpen } from "lucide-react";
+import { toast } from "sonner";
+import { useApp } from "@/context/AppContext";
 
 const UserLogin = () => {
   const navigate = useNavigate();
+  const { signIn, signUp, signInWithGoogle } = useApp();
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const result = isLogin
+      ? await signIn(email, password, "user")
+      : await signUp({ email, password, name, role: "user" });
+
+    if (result.error) {
+      toast.error(result.error);
+      return;
+    }
+
+    if (result.message) {
+      toast.success(result.message);
+      setIsLogin(true);
+      return;
+    }
+
     navigate("/user/dashboard");
+  };
+
+  const handleGoogle = async () => {
+    const result = await signInWithGoogle("user");
+    if (result.error) toast.error(result.error);
   };
 
   return (
@@ -69,6 +92,9 @@ const UserLogin = () => {
               <button type="submit" className="w-full py-4 bg-primary text-primary-foreground font-bold rounded-2xl shadow-lg hover:scale-[1.01] active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2">
                 <span>{isLogin ? "Sign In to Workspace" : "Create Account"}</span>
                 <ArrowRight className="w-4 h-4" />
+              </button>
+              <button type="button" onClick={handleGoogle} className="w-full py-4 bg-surface-container-low text-primary font-bold rounded-2xl hover:bg-surface-container-high transition-all duration-200 flex items-center justify-center gap-2">
+                Continue with Google
               </button>
             </form>
           </div>

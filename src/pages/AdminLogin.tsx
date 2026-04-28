@@ -1,16 +1,35 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Eye, EyeOff, Mail, Lock, ArrowRight, Shield } from "lucide-react";
+import { toast } from "sonner";
+import { useApp } from "@/context/AppContext";
 
 const AdminLogin = () => {
   const navigate = useNavigate();
+  const { signIn, signUp, signInWithGoogle } = useApp();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const result = await signIn(email, password, "admin");
+    if (result.error) {
+      toast.error(result.error);
+      return;
+    }
     navigate("/admin/dashboard");
+  };
+
+  const handleCreateFirstAdmin = async () => {
+    const result = await signUp({ email, password, name: email.split("@")[0] || "Admin", role: "admin" });
+    if (result.error) toast.error(result.error);
+    else toast.success(result.message ?? "Check your email to verify your admin account.");
+  };
+
+  const handleGoogle = async () => {
+    const result = await signInWithGoogle("admin");
+    if (result.error) toast.error(result.error);
   };
 
   return (
@@ -87,6 +106,8 @@ const AdminLogin = () => {
                 <span>Access Admin Panel</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
+              <button type="button" onClick={handleGoogle} className="w-full py-4 bg-surface-container-low text-primary font-bold rounded-2xl hover:bg-surface-container-high transition-all duration-200">Continue with Google</button>
+              <button type="button" onClick={handleCreateFirstAdmin} className="w-full text-xs font-semibold text-secondary hover:underline">Create first admin account</button>
             </form>
           </div>
 
