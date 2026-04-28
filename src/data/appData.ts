@@ -94,7 +94,7 @@ export const ROOMS: Room[] = [
     name: "Meeting Room #2",
     floor: "Floor 8",
     capacity: 8,
-    status: "occupied",
+    status: "inactive",
     equipment: ["Display", "Wi-Fi", "Whiteboard", "Video Conferencing"],
     bookings: 15,
     image: roomMeeting2,

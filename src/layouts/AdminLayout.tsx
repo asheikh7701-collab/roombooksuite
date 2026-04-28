@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { LayoutDashboard, Package, BarChart3, CalendarDays, Users, Settings, HelpCircle, DoorOpen, LogOut, Bell, Search, Plus, Menu, X } from "lucide-react";
 import { useApp } from "@/context/AppContext";
@@ -16,7 +16,9 @@ const AdminLayout = () => {
   const { signOut, loading, session, isAdmin } = useApp();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  if (!loading && (!session || !isAdmin)) navigate("/admin/login");
+  useEffect(() => {
+    if (!loading && (!session || !isAdmin)) navigate("/admin/login");
+  }, [loading, session, isAdmin, navigate]);
 
   const sidebar = (
     <>

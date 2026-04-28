@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useApp } from "@/context/AppContext";
 import { LayoutDashboard, CalendarPlus, CalendarDays, User, Settings, HelpCircle, DoorOpen, LogOut, Bell, Search, Menu, X } from "lucide-react";
@@ -15,7 +15,9 @@ const UserLayout = () => {
   const { currentUser, reservations, signOut, loading, session } = useApp();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  if (!loading && !session) navigate("/");
+  useEffect(() => {
+    if (!loading && !session) navigate("/");
+  }, [loading, session, navigate]);
 
   const notifications = reservations.filter((r) => r.status === "pending" && r.bookedBy === currentUser.name).length;
 
