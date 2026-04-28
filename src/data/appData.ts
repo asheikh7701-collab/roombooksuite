@@ -33,6 +33,13 @@ export interface Reservation {
   createdAt: string;
 }
 
+export interface UserPermissions {
+  canViewDashboard: boolean;
+  canBookRooms: boolean;
+  canViewReservations: boolean;
+  canManageProfile: boolean;
+}
+
 export interface AppUser {
   id: string;
   name: string;
@@ -42,11 +49,12 @@ export interface AppUser {
   joinedAt: string;
   totalBookings: number;
   status: "active" | "inactive";
+  permissions: UserPermissions;
 }
 
 export const ROOMS: Room[] = [
   {
-    id: 1,
+    id: "demo-room-1",
     name: "Director Board Meeting Room",
     floor: "Floor 12",
     capacity: 12,
@@ -57,7 +65,7 @@ export const ROOMS: Room[] = [
     description: "Premium executive boardroom with panoramic city views, ideal for C-suite meetings and board presentations.",
   },
   {
-    id: 2,
+    id: "demo-room-2",
     name: "Meeting Room #1",
     floor: "Floor 8",
     capacity: 6,
@@ -68,7 +76,7 @@ export const ROOMS: Room[] = [
     description: "Compact collaborative space perfect for team huddles and brainstorming sessions.",
   },
   {
-    id: 3,
+    id: "demo-room-3",
     name: "Innovation Lab",
     floor: "Floor 6",
     capacity: 10,
@@ -79,7 +87,7 @@ export const ROOMS: Room[] = [
     description: "Creative workspace with modular furniture, large displays, and collaboration tools.",
   },
   {
-    id: 4,
+    id: "demo-room-4",
     name: "Executive Lounge",
     floor: "Floor 12",
     capacity: 4,
@@ -90,7 +98,7 @@ export const ROOMS: Room[] = [
     description: "Intimate luxury setting for confidential discussions and client meetings.",
   },
   {
-    id: 5,
+    id: "demo-room-5",
     name: "Meeting Room #2",
     floor: "Floor 8",
     capacity: 8,
@@ -101,7 +109,7 @@ export const ROOMS: Room[] = [
     description: "Versatile conference room with video conferencing capabilities and glass partition walls.",
   },
   {
-    id: 6,
+    id: "demo-room-6",
     name: "Town Hall",
     floor: "Floor 1",
     capacity: 50,
@@ -116,7 +124,7 @@ export const ROOMS: Room[] = [
 export const INITIAL_RESERVATIONS: Reservation[] = [
   {
     id: "res-1",
-    roomId: 1,
+    roomId: "demo-room-1",
     roomName: "Director Board Meeting Room",
     date: "2024-10-28",
     startTime: "2:00 PM",
@@ -131,7 +139,7 @@ export const INITIAL_RESERVATIONS: Reservation[] = [
   },
   {
     id: "res-2",
-    roomId: 2,
+    roomId: "demo-room-2",
     roomName: "Meeting Room #1",
     date: "2024-10-30",
     startTime: "10:00 AM",
@@ -146,7 +154,7 @@ export const INITIAL_RESERVATIONS: Reservation[] = [
   },
   {
     id: "res-3",
-    roomId: 3,
+    roomId: "demo-room-3",
     roomName: "Innovation Lab",
     date: "2024-11-01",
     startTime: "9:00 AM",
@@ -161,7 +169,7 @@ export const INITIAL_RESERVATIONS: Reservation[] = [
   },
   {
     id: "res-4",
-    roomId: 4,
+    roomId: "demo-room-4",
     roomName: "Executive Lounge",
     date: "2024-10-20",
     startTime: "3:00 PM",
@@ -176,7 +184,7 @@ export const INITIAL_RESERVATIONS: Reservation[] = [
   },
   {
     id: "res-5",
-    roomId: 2,
+    roomId: "demo-room-2",
     roomName: "Meeting Room #1",
     date: "2024-10-18",
     startTime: "1:00 PM",
@@ -191,7 +199,7 @@ export const INITIAL_RESERVATIONS: Reservation[] = [
   },
   {
     id: "res-6",
-    roomId: 5,
+    roomId: "demo-room-5",
     roomName: "Meeting Room #2",
     date: "2024-11-05",
     startTime: "2:00 PM",
@@ -207,12 +215,12 @@ export const INITIAL_RESERVATIONS: Reservation[] = [
 ];
 
 export const USERS: AppUser[] = [
-  { id: "u1", name: "Alex Sterling", email: "alex@company.com", role: "user", department: "Product", joinedAt: "2023-06-15", totalBookings: 42, status: "active" },
-  { id: "u2", name: "Sarah Chen", email: "sarah@company.com", role: "user", department: "Design", joinedAt: "2023-08-20", totalBookings: 35, status: "active" },
-  { id: "u3", name: "James Wilson", email: "james@company.com", role: "user", department: "Engineering", joinedAt: "2023-03-10", totalBookings: 28, status: "active" },
-  { id: "u4", name: "Emma Davis", email: "emma@company.com", role: "user", department: "Marketing", joinedAt: "2024-01-05", totalBookings: 18, status: "active" },
-  { id: "u5", name: "Michael Brown", email: "michael@company.com", role: "admin", department: "Operations", joinedAt: "2023-01-01", totalBookings: 12, status: "active" },
-  { id: "u6", name: "Lisa Park", email: "lisa@company.com", role: "user", department: "HR", joinedAt: "2024-02-15", totalBookings: 8, status: "inactive" },
+  { id: "u1", name: "Alex Sterling", email: "alex@company.com", role: "user", department: "Product", joinedAt: "2023-06-15", totalBookings: 42, status: "active", permissions: { canViewDashboard: true, canBookRooms: true, canViewReservations: true, canManageProfile: true } },
+  { id: "u2", name: "Sarah Chen", email: "sarah@company.com", role: "user", department: "Design", joinedAt: "2023-08-20", totalBookings: 35, status: "active", permissions: { canViewDashboard: true, canBookRooms: true, canViewReservations: true, canManageProfile: true } },
+  { id: "u3", name: "James Wilson", email: "james@company.com", role: "user", department: "Engineering", joinedAt: "2023-03-10", totalBookings: 28, status: "active", permissions: { canViewDashboard: true, canBookRooms: true, canViewReservations: true, canManageProfile: true } },
+  { id: "u4", name: "Emma Davis", email: "emma@company.com", role: "user", department: "Marketing", joinedAt: "2024-01-05", totalBookings: 18, status: "active", permissions: { canViewDashboard: true, canBookRooms: true, canViewReservations: true, canManageProfile: true } },
+  { id: "u5", name: "Michael Brown", email: "michael@company.com", role: "admin", department: "Operations", joinedAt: "2023-01-01", totalBookings: 12, status: "active", permissions: { canViewDashboard: true, canBookRooms: true, canViewReservations: true, canManageProfile: true } },
+  { id: "u6", name: "Lisa Park", email: "lisa@company.com", role: "user", department: "HR", joinedAt: "2024-02-15", totalBookings: 8, status: "inactive", permissions: { canViewDashboard: true, canBookRooms: true, canViewReservations: true, canManageProfile: true } },
 ];
 
 export const TIME_SLOTS = [

@@ -1,10 +1,10 @@
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useApp } from "@/context/AppContext";
 import { CalendarPlus, Clock, MapPin, Users, CheckCircle, ArrowRight } from "lucide-react";
 import heroImage from "@/assets/hero-conference.jpg";
 
 const UserDashboard = () => {
-  const { rooms, reservations } = useApp();
+  const { rooms, reservations, currentUser } = useApp();
   const navigate = useNavigate();
 
   const upcomingReservations = reservations.filter(
@@ -25,20 +25,22 @@ const UserDashboard = () => {
             Welcome Back
           </span>
           <h1 className="text-4xl lg:text-5xl font-extrabold tracking-tight mb-4 text-primary-foreground">
-            Good Morning, Alex!
+            Good Morning, {currentUser.name.split(" ")[0]}!
           </h1>
           <p className="text-primary-foreground/70 text-lg mb-8 leading-relaxed">
             {upcomingReservations.length > 0
               ? `You have ${upcomingReservations.length} upcoming reservation${upcomingReservations.length > 1 ? "s" : ""}. Your workspace is prepped and ready.`
               : "No upcoming meetings. Book a space to get started."}
           </p>
-          <button
-            onClick={() => navigate("/user/book")}
-            className="bg-secondary-container text-secondary px-8 py-4 rounded-xl font-bold flex items-center gap-3 hover:scale-105 active:scale-95 transition-all duration-150"
-          >
-            <CalendarPlus className="w-5 h-5" />
-            Reserve a Space
-          </button>
+          {currentUser.permissions.canBookRooms && (
+            <button
+              onClick={() => navigate("/user/book")}
+              className="bg-secondary-container text-secondary px-8 py-4 rounded-xl font-bold flex items-center gap-3 hover:scale-105 active:scale-95 transition-all duration-150"
+            >
+              <CalendarPlus className="w-5 h-5" />
+              Reserve a Space
+            </button>
+          )}
         </div>
       </section>
 
@@ -124,12 +126,14 @@ const UserDashboard = () => {
                   <span className="flex items-center gap-1"><Users className="w-3 h-3" /> {room.capacity} Seats</span>
                   <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {room.floor}</span>
                 </div>
-                <button
-                  onClick={() => navigate("/user/book")}
-                  className="w-full py-3 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:bg-primary-container transition-colors"
-                >
-                  Book Now
-                </button>
+                {currentUser.permissions.canBookRooms && (
+                  <button
+                    onClick={() => navigate("/user/book")}
+                    className="w-full py-3 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:bg-primary-container transition-colors"
+                  >
+                    Book Now
+                  </button>
+                )}
               </div>
             </div>
           ))}

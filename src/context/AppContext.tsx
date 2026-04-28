@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, R
 import type { Session, User as AuthUser } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
-import type { AppUser, Reservation, Room } from "@/data/appData";
+import type { AppUser, Reservation, Room, UserPermissions } from "@/data/appData";
 import roomDirectorBoard from "@/assets/room-director-board.jpg";
 import roomMeeting1 from "@/assets/room-meeting-1.jpg";
 import roomInnovationLab from "@/assets/room-innovation-lab.jpg";
@@ -19,7 +19,7 @@ interface AppContextType {
   setReservations: React.Dispatch<React.SetStateAction<Reservation[]>>;
   users: AppUser[];
   setUsers: React.Dispatch<React.SetStateAction<AppUser[]>>;
-  currentUser: { id: string; name: string; email: string; role: "user" | "admin"; department?: string; phone?: string; notificationEmail?: boolean; notificationPush?: boolean };
+  currentUser: { id: string; name: string; email: string; role: "user" | "admin"; department?: string; phone?: string; notificationEmail?: boolean; notificationPush?: boolean; permissions: UserPermissions };
   session: Session | null;
   loading: boolean;
   isAdmin: boolean;
@@ -29,7 +29,9 @@ interface AppContextType {
   signOut: () => Promise<void>;
   refreshData: () => Promise<void>;
   updateProfile: (updates: { fullName?: string; email?: string; department?: string; phone?: string; notificationEmail?: boolean; notificationPush?: boolean }) => Promise<void>;
-  addReservation: (res: Omit<Reservation, "id" | "createdAt" | "bookedBy" | "roomName" | "floor">) => Promise<void>;
+  createUser: (payload: { email: string; password: string; fullName: string; department?: string; jobTitle?: string; role: "user" | "admin"; permissions: UserPermissions }) => Promise<void>;
+  updateUserAccess: (userId: string, updates: { status?: "active" | "inactive"; role?: "user" | "admin"; permissions?: UserPermissions }) => Promise<void>;
+  addReservation: (res: Omit<Reservation, "id" | "createdAt" | "bookedBy" | "roomName" | "floor"> & { userId?: string }) => Promise<void>;
   cancelReservation: (id: string) => Promise<void>;
   updateReservation: (id: string, updates: Partial<Reservation>) => Promise<void>;
   addRoom: (room: Omit<Room, "id">) => Promise<void>;
@@ -84,6 +86,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [users, setUsers] = useState<AppUser[]>([]);
   const [role, setRole] = useState<"user" | "admin">("user");
   const [profile, setProfile] = useState<AppUser | null>(null);
+  const defaultPermissions: UserPermissions = { canViewDashboard: true, canBookRooms: true, canViewReservations: true, canManageProfile: true };
+  const [permissions, setPermissions] = useState<UserPermissions>(defaultPermissions);
 
   const currentUser = useMemo(() => ({
     id: authUser?.id ?? "",
@@ -94,12 +98,14 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     phone: undefined,
     notificationEmail: true,
     notificationPush: true,
-  }), [authUser, profile, role]);
+    permissions,
+  }), [authUser, profile, role, permissions]);
 
   const fetchProfileAndRole = useCallback(async (user: AuthUser | null) => {
     if (!user) {
       setProfile(null);
       setRole("user");
+      setPermissions(defaultPermissions);
       return;
     }
 
@@ -114,6 +120,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         email: user.email ?? "",
         department: "General",
       });
+      await supabase.from("user_permissions").insert({ user_id: user.id });
     }
 
     const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", user.id);
@@ -122,13 +129,20 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       localStorage.removeItem("roombook_pending_role");
     }
 
-    const [{ data: latestProfile }, { data: latestRoles }] = await Promise.all([
+    const [{ data: latestProfile }, { data: latestRoles }, { data: latestPermissions }] = await Promise.all([
       supabase.from("profiles").select("*").eq("user_id", user.id).maybeSingle(),
       supabase.from("user_roles").select("role").eq("user_id", user.id),
+      supabase.from("user_permissions").select("*").eq("user_id", user.id).maybeSingle(),
     ]);
 
     const resolvedRole = latestRoles?.some((r) => r.role === "admin") ? "admin" : "user";
     setRole(resolvedRole);
+    setPermissions(latestPermissions ? {
+      canViewDashboard: latestPermissions.can_view_dashboard,
+      canBookRooms: latestPermissions.can_book_rooms,
+      canViewReservations: latestPermissions.can_view_reservations,
+      canManageProfile: latestPermissions.can_manage_profile,
+    } : defaultPermissions);
     setProfile(latestProfile ? {
       id: latestProfile.user_id,
       name: latestProfile.full_name,
@@ -138,15 +152,22 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       joinedAt: latestProfile.created_at.split("T")[0],
       totalBookings: 0,
       status: latestProfile.status as "active" | "inactive",
+      permissions: latestPermissions ? {
+        canViewDashboard: latestPermissions.can_view_dashboard,
+        canBookRooms: latestPermissions.can_book_rooms,
+        canViewReservations: latestPermissions.can_view_reservations,
+        canManageProfile: latestPermissions.can_manage_profile,
+      } : defaultPermissions,
     } : null);
   }, []);
 
   const refreshData = useCallback(async () => {
-    const [{ data: roomRows }, { data: reservationRows }, { data: profileRows }, { data: roleRows }] = await Promise.all([
+    const [{ data: roomRows }, { data: reservationRows }, { data: profileRows }, { data: roleRows }, { data: permissionRows }] = await Promise.all([
       supabase.from("rooms").select("*").order("name"),
       supabase.from("reservations").select("*").order("reservation_date", { ascending: false }),
       supabase.from("profiles").select("*"),
       supabase.from("user_roles").select("*"),
+      supabase.from("user_permissions").select("*"),
     ]);
 
     const mappedRooms: Room[] = (roomRows ?? []).map((room, index) => ({
@@ -187,6 +208,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
     setUsers((profileRows ?? []).map((p) => {
       const userRole = roleRows?.some((r) => r.user_id === p.user_id && r.role === "admin") ? "admin" : "user";
+      const userPerms = permissionRows?.find((permission) => permission.user_id === p.user_id);
       return {
         id: p.user_id,
         name: p.full_name,
@@ -196,6 +218,12 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         joinedAt: p.created_at.split("T")[0],
         totalBookings: (reservationRows ?? []).filter((r) => r.user_id === p.user_id).length,
         status: p.status as "active" | "inactive",
+        permissions: userPerms ? {
+          canViewDashboard: userPerms.can_view_dashboard,
+          canBookRooms: userPerms.can_book_rooms,
+          canViewReservations: userPerms.can_view_reservations,
+          canManageProfile: userPerms.can_manage_profile,
+        } : defaultPermissions,
       };
     }));
   }, []);
@@ -285,11 +313,43 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     await refreshData();
   };
 
-  const addReservation = async (res: Omit<Reservation, "id" | "createdAt" | "bookedBy" | "roomName" | "floor">) => {
+  const createUser = async (payload: { email: string; password: string; fullName: string; department?: string; jobTitle?: string; role: "user" | "admin"; permissions: UserPermissions }) => {
+    const { error } = await supabase.functions.invoke("admin-create-user", { body: payload });
+    if (error) throw error;
+    await refreshData();
+  };
+
+  const updateUserAccess = async (userId: string, updates: { status?: "active" | "inactive"; role?: "user" | "admin"; permissions?: UserPermissions }) => {
+    if (updates.status) {
+      const { error } = await supabase.from("profiles").update({ status: updates.status }).eq("user_id", userId);
+      if (error) throw error;
+    }
+
+    if (updates.role) {
+      await supabase.from("user_roles").delete().eq("user_id", userId);
+      const { error } = await supabase.from("user_roles").insert({ user_id: userId, role: updates.role });
+      if (error) throw error;
+    }
+
+    if (updates.permissions) {
+      const { error } = await supabase.from("user_permissions").upsert({
+        user_id: userId,
+        can_view_dashboard: updates.permissions.canViewDashboard,
+        can_book_rooms: updates.permissions.canBookRooms,
+        can_view_reservations: updates.permissions.canViewReservations,
+        can_manage_profile: updates.permissions.canManageProfile,
+      }, { onConflict: "user_id" });
+      if (error) throw error;
+    }
+
+    await refreshData();
+  };
+
+  const addReservation = async (res: Omit<Reservation, "id" | "createdAt" | "bookedBy" | "roomName" | "floor"> & { userId?: string }) => {
     if (!authUser) throw new Error("You must be signed in to book a room.");
     const { error } = await supabase.from("reservations").insert({
       room_id: res.roomId,
-      user_id: authUser.id,
+      user_id: res.userId ?? authUser.id,
       title: res.title,
       reservation_date: res.date,
       start_time: toDbTime(res.startTime),
@@ -360,7 +420,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   return (
     <AppContext.Provider value={{
       rooms, setRooms, reservations, setReservations, users, setUsers, currentUser, session, loading, isAdmin: role === "admin",
-      signIn, signUp, signInWithGoogle, signOut, refreshData, updateProfile,
+      signIn, signUp, signInWithGoogle, signOut, refreshData, updateProfile, createUser, updateUserAccess,
       addReservation, cancelReservation, updateReservation, addRoom, updateRoom, deleteRoom,
     }}>
       {children}
