@@ -16,6 +16,7 @@ import AdminInventory from "./pages/admin/Inventory";
 import AdminAnalytics from "./pages/admin/Analytics";
 import AdminReservations from "./pages/admin/Reservations";
 import AdminUsers from "./pages/admin/Users";
+import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +30,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<UserLogin />} />
             <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/user" element={<UserLayout />}>
               <Route index element={<Navigate to="dashboard" replace />} />
               <Route path="dashboard" element={<UserDashboard />} />

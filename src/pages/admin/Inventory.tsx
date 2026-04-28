@@ -24,7 +24,7 @@ import type { Room } from "@/data/appData";
 const AdminInventory = () => {
   const { rooms, deleteRoom, updateRoom, addRoom } = useApp();
   const [searchTerm, setSearchTerm] = useState("");
-  const [deleteTarget, setDeleteTarget] = useState<number | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
   const [editTarget, setEditTarget] = useState<Room | null>(null);
   const [showAddDialog, setShowAddDialog] = useState(false);
 
@@ -58,22 +58,27 @@ const AdminInventory = () => {
     setEditEquipment("");
   };
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     if (!editTarget) return;
-    updateRoom(editTarget.id, {
+    try {
+      await updateRoom(editTarget.id, {
       name: editName,
       floor: editFloor,
       capacity: parseInt(editCapacity) || 0,
       status: editStatus,
       description: editDescription,
       equipment: editEquipment.split(",").map((e) => e.trim()).filter(Boolean),
-    });
-    toast.success("Room updated", { description: `${editName} has been updated.` });
-    setEditTarget(null);
+      });
+      toast.success("Room updated", { description: `${editName} has been updated.` });
+      setEditTarget(null);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not update room.");
+    }
   };
 
-  const handleAddRoom = () => {
-    addRoom({
+  const handleAddRoom = async () => {
+    try {
+      await addRoom({
       name: editName,
       floor: editFloor,
       capacity: parseInt(editCapacity) || 0,
@@ -82,23 +87,30 @@ const AdminInventory = () => {
       equipment: editEquipment.split(",").map((e) => e.trim()).filter(Boolean),
       bookings: 0,
       image: rooms[0]?.image || "",
-    });
-    toast.success("Room added", { description: `${editName} has been added to inventory.` });
-    setShowAddDialog(false);
+      });
+      toast.success("Room added", { description: `${editName} has been added to inventory.` });
+      setShowAddDialog(false);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not add room.");
+    }
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (deleteTarget === null) return;
     const room = rooms.find((r) => r.id === deleteTarget);
-    deleteRoom(deleteTarget);
-    toast.success("Room removed", { description: `${room?.name} has been removed from inventory.` });
+    try {
+      await deleteRoom(deleteTarget);
+      toast.success("Room removed", { description: `${room?.name} has been removed from inventory.` });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not delete room.");
+    }
     setDeleteTarget(null);
   };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "available": return <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-secondary/10 text-secondary"><CheckCircle className="w-3 h-3" /> Available</span>;
-      case "occupied": return <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-primary/10 text-primary"><Users className="w-3 h-3" /> Occupied</span>;
+      case "inactive": return <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-primary/10 text-primary"><Users className="w-3 h-3" /> Inactive</span>;
       case "maintenance": return <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-600"><Wrench className="w-3 h-3" /> Maintenance</span>;
       default: return null;
     }
@@ -124,7 +136,7 @@ const AdminInventory = () => {
         <label className="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1">Status</label>
         <select value={editStatus} onChange={(e) => setEditStatus(e.target.value as Room["status"])} className="w-full px-3 py-2 bg-surface-container-low border-0 rounded-lg text-foreground focus:ring-2 focus:ring-secondary/40">
           <option value="available">Available</option>
-          <option value="occupied">Occupied</option>
+          <option value="inactive">Inactive</option>
           <option value="maintenance">Maintenance</option>
         </select>
       </div>

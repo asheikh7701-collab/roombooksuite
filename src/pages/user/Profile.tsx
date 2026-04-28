@@ -4,18 +4,23 @@ import { User, Mail, Building, Calendar, Save, Camera } from "lucide-react";
 import { toast } from "sonner";
 
 const UserProfile = () => {
-  const { currentUser, reservations } = useApp();
+  const { currentUser, reservations, updateProfile } = useApp();
   const userReservations = reservations.filter((r) => r.bookedBy === currentUser.name);
 
   const [name, setName] = useState(currentUser.name);
   const [email, setEmail] = useState(currentUser.email);
-  const [department, setDepartment] = useState("Product");
-  const [phone, setPhone] = useState("+1 (555) 123-4567");
-  const [notifications, setNotifications] = useState(true);
-  const [emailReminders, setEmailReminders] = useState(true);
+  const [department, setDepartment] = useState(currentUser.department ?? "General");
+  const [phone, setPhone] = useState(currentUser.phone ?? "");
+  const [notifications, setNotifications] = useState(currentUser.notificationPush ?? true);
+  const [emailReminders, setEmailReminders] = useState(currentUser.notificationEmail ?? true);
 
-  const handleSave = () => {
-    toast.success("Profile updated", { description: "Your changes have been saved successfully." });
+  const handleSave = async () => {
+    try {
+      await updateProfile({ fullName: name, email, department, phone, notificationEmail: emailReminders, notificationPush: notifications });
+      toast.success("Profile updated", { description: "Your changes have been saved successfully." });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not save profile.");
+    }
   };
 
   return (

@@ -14,7 +14,182 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          department: string | null
+          email: string
+          full_name: string
+          id: string
+          job_title: string | null
+          notification_email: boolean
+          notification_push: boolean
+          phone: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          department?: string | null
+          email: string
+          full_name: string
+          id?: string
+          job_title?: string | null
+          notification_email?: boolean
+          notification_push?: boolean
+          phone?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          department?: string | null
+          email?: string
+          full_name?: string
+          id?: string
+          job_title?: string | null
+          notification_email?: boolean
+          notification_push?: boolean
+          phone?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      reservations: {
+        Row: {
+          attendees: number
+          created_at: string
+          end_time: string
+          id: string
+          notes: string | null
+          purpose: string | null
+          reservation_date: string
+          room_id: string
+          start_time: string
+          status: Database["public"]["Enums"]["reservation_status"]
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          attendees?: number
+          created_at?: string
+          end_time: string
+          id?: string
+          notes?: string | null
+          purpose?: string | null
+          reservation_date: string
+          room_id: string
+          start_time: string
+          status?: Database["public"]["Enums"]["reservation_status"]
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          attendees?: number
+          created_at?: string
+          end_time?: string
+          id?: string
+          notes?: string | null
+          purpose?: string | null
+          reservation_date?: string
+          room_id?: string
+          start_time?: string
+          status?: Database["public"]["Enums"]["reservation_status"]
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reservations_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rooms: {
+        Row: {
+          amenities: string[]
+          capacity: number
+          close_time: string
+          created_at: string
+          description: string | null
+          floor: string | null
+          id: string
+          image_url: string | null
+          location: string
+          name: string
+          open_time: string
+          status: Database["public"]["Enums"]["room_status"]
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          amenities?: string[]
+          capacity: number
+          close_time?: string
+          created_at?: string
+          description?: string | null
+          floor?: string | null
+          id?: string
+          image_url?: string | null
+          location: string
+          name: string
+          open_time?: string
+          status?: Database["public"]["Enums"]["room_status"]
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          amenities?: string[]
+          capacity?: number
+          close_time?: string
+          created_at?: string
+          description?: string | null
+          floor?: string | null
+          id?: string
+          image_url?: string | null
+          location?: string
+          name?: string
+          open_time?: string
+          status?: Database["public"]["Enums"]["room_status"]
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +198,9 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
+      reservation_status: "confirmed" | "pending" | "cancelled" | "completed"
+      room_status: "active" | "maintenance" | "inactive"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +327,10 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+      reservation_status: ["confirmed", "pending", "cancelled", "completed"],
+      room_status: ["active", "maintenance", "inactive"],
+    },
   },
 } as const

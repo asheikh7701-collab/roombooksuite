@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { LayoutDashboard, Package, BarChart3, CalendarDays, Users, Settings, HelpCircle, DoorOpen, LogOut, Bell, Search, Plus, Menu, X } from "lucide-react";
+import { useApp } from "@/context/AppContext";
 
 const navItems = [
   { to: "/admin/dashboard", icon: LayoutDashboard, label: "Dashboard" },
@@ -12,7 +13,12 @@ const navItems = [
 
 const AdminLayout = () => {
   const navigate = useNavigate();
+  const { signOut, loading, session, isAdmin } = useApp();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    if (!loading && (!session || !isAdmin)) navigate("/admin/login");
+  }, [loading, session, isAdmin, navigate]);
 
   const sidebar = (
     <>
@@ -54,7 +60,7 @@ const AdminLayout = () => {
         <button className="mx-2 px-4 py-3 flex items-center gap-3 font-medium text-sm text-muted-foreground hover:bg-surface-container-high w-full transition-all duration-200 rounded-lg">
           <HelpCircle className="w-5 h-5" /> Support
         </button>
-        <button onClick={() => { navigate("/"); setSidebarOpen(false); }} className="mx-2 px-4 py-3 flex items-center gap-3 font-medium text-sm text-destructive hover:bg-error-container w-full transition-all duration-200 rounded-lg">
+        <button onClick={async () => { await signOut(); navigate("/"); setSidebarOpen(false); }} className="mx-2 px-4 py-3 flex items-center gap-3 font-medium text-sm text-destructive hover:bg-error-container w-full transition-all duration-200 rounded-lg">
           <LogOut className="w-5 h-5" /> Sign Out
         </button>
       </div>

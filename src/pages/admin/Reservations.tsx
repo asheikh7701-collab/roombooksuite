@@ -23,16 +23,24 @@ const AdminReservations = () => {
     .filter((r) => filter === "all" || r.status === filter)
     .filter((r) => r.title.toLowerCase().includes(searchTerm.toLowerCase()) || r.bookedBy.toLowerCase().includes(searchTerm.toLowerCase()) || r.roomName.toLowerCase().includes(searchTerm.toLowerCase()));
 
-  const handleCancel = () => {
+  const handleCancel = async () => {
     if (!cancelTarget) return;
-    cancelReservation(cancelTarget);
-    toast.success("Reservation cancelled by admin.");
+    try {
+      await cancelReservation(cancelTarget);
+      toast.success("Reservation cancelled by admin.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not cancel reservation.");
+    }
     setCancelTarget(null);
   };
 
-  const handleApprove = (id: string) => {
-    updateReservation(id, { status: "confirmed" });
-    toast.success("Reservation approved.");
+  const handleApprove = async (id: string) => {
+    try {
+      await updateReservation(id, { status: "confirmed" });
+      toast.success("Reservation approved.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not approve reservation.");
+    }
   };
 
   const getStatusIcon = (status: string) => {

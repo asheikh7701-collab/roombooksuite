@@ -6,11 +6,11 @@ import roomMeeting2 from "@/assets/room-meeting-2.jpg";
 import roomTownHall from "@/assets/room-town-hall.jpg";
 
 export interface Room {
-  id: number;
+  id: string;
   name: string;
   floor: string;
   capacity: number;
-  status: "available" | "occupied" | "maintenance";
+  status: "available" | "maintenance" | "inactive";
   equipment: string[];
   bookings: number;
   image: string;
@@ -19,7 +19,7 @@ export interface Room {
 
 export interface Reservation {
   id: string;
-  roomId: number;
+  roomId: string;
   roomName: string;
   date: string;
   startTime: string;
@@ -94,7 +94,7 @@ export const ROOMS: Room[] = [
     name: "Meeting Room #2",
     floor: "Floor 8",
     capacity: 8,
-    status: "occupied",
+    status: "inactive",
     equipment: ["Display", "Wi-Fi", "Whiteboard", "Video Conferencing"],
     bookings: 15,
     image: roomMeeting2,
