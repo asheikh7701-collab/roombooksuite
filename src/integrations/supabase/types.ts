@@ -169,6 +169,39 @@ export type Database = {
         }
         Relationships: []
       }
+      user_permissions: {
+        Row: {
+          can_book_rooms: boolean
+          can_manage_profile: boolean
+          can_view_dashboard: boolean
+          can_view_reservations: boolean
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          can_book_rooms?: boolean
+          can_manage_profile?: boolean
+          can_view_dashboard?: boolean
+          can_view_reservations?: boolean
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          can_book_rooms?: boolean
+          can_manage_profile?: boolean
+          can_view_dashboard?: boolean
+          can_view_reservations?: boolean
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
