@@ -16,7 +16,7 @@ const UserLogin = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const result = isLogin
+    const result: { error?: string; message?: string } = isLogin
       ? await signIn(email, password, "user")
       : await signUp({ email, password, name, role: "user" });
 

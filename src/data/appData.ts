@@ -46,7 +46,7 @@ export interface AppUser {
 
 export const ROOMS: Room[] = [
   {
-    id: 1,
+    id: "demo-room-1",
     name: "Director Board Meeting Room",
     floor: "Floor 12",
     capacity: 12,
@@ -57,7 +57,7 @@ export const ROOMS: Room[] = [
     description: "Premium executive boardroom with panoramic city views, ideal for C-suite meetings and board presentations.",
   },
   {
-    id: 2,
+    id: "demo-room-2",
     name: "Meeting Room #1",
     floor: "Floor 8",
     capacity: 6,
@@ -68,7 +68,7 @@ export const ROOMS: Room[] = [
     description: "Compact collaborative space perfect for team huddles and brainstorming sessions.",
   },
   {
-    id: 3,
+    id: "demo-room-3",
     name: "Innovation Lab",
     floor: "Floor 6",
     capacity: 10,
@@ -79,7 +79,7 @@ export const ROOMS: Room[] = [
     description: "Creative workspace with modular furniture, large displays, and collaboration tools.",
   },
   {
-    id: 4,
+    id: "demo-room-4",
     name: "Executive Lounge",
     floor: "Floor 12",
     capacity: 4,
@@ -90,7 +90,7 @@ export const ROOMS: Room[] = [
     description: "Intimate luxury setting for confidential discussions and client meetings.",
   },
   {
-    id: 5,
+    id: "demo-room-5",
     name: "Meeting Room #2",
     floor: "Floor 8",
     capacity: 8,
@@ -101,7 +101,7 @@ export const ROOMS: Room[] = [
     description: "Versatile conference room with video conferencing capabilities and glass partition walls.",
   },
   {
-    id: 6,
+    id: "demo-room-6",
     name: "Town Hall",
     floor: "Floor 1",
     capacity: 50,
@@ -116,7 +116,7 @@ export const ROOMS: Room[] = [
 export const INITIAL_RESERVATIONS: Reservation[] = [
   {
     id: "res-1",
-    roomId: 1,
+    roomId: "demo-room-1",
     roomName: "Director Board Meeting Room",
     date: "2024-10-28",
     startTime: "2:00 PM",
@@ -131,7 +131,7 @@ export const INITIAL_RESERVATIONS: Reservation[] = [
   },
   {
     id: "res-2",
-    roomId: 2,
+    roomId: "demo-room-2",
     roomName: "Meeting Room #1",
     date: "2024-10-30",
     startTime: "10:00 AM",
@@ -146,7 +146,7 @@ export const INITIAL_RESERVATIONS: Reservation[] = [
   },
   {
     id: "res-3",
-    roomId: 3,
+    roomId: "demo-room-3",
     roomName: "Innovation Lab",
     date: "2024-11-01",
     startTime: "9:00 AM",
@@ -161,7 +161,7 @@ export const INITIAL_RESERVATIONS: Reservation[] = [
   },
   {
     id: "res-4",
-    roomId: 4,
+    roomId: "demo-room-4",
     roomName: "Executive Lounge",
     date: "2024-10-20",
     startTime: "3:00 PM",
@@ -176,7 +176,7 @@ export const INITIAL_RESERVATIONS: Reservation[] = [
   },
   {
     id: "res-5",
-    roomId: 2,
+    roomId: "demo-room-2",
     roomName: "Meeting Room #1",
     date: "2024-10-18",
     startTime: "1:00 PM",
@@ -191,7 +191,7 @@ export const INITIAL_RESERVATIONS: Reservation[] = [
   },
   {
     id: "res-6",
-    roomId: 5,
+    roomId: "demo-room-5",
     roomName: "Meeting Room #2",
     date: "2024-11-05",
     startTime: "2:00 PM",
