@@ -4,7 +4,7 @@ import { Search, User, Mail, Building, Calendar, Shield, UserCheck, UserX } from
 import { toast } from "sonner";
 
 const AdminUsers = () => {
-  const { users, setUsers } = useApp();
+  const { users } = useApp();
   const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState<"all" | "active" | "inactive">("all");
 
@@ -13,14 +13,8 @@ const AdminUsers = () => {
     .filter((u) => u.name.toLowerCase().includes(searchTerm.toLowerCase()) || u.email.toLowerCase().includes(searchTerm.toLowerCase()));
 
   const toggleStatus = (id: string) => {
-    setUsers((prev) =>
-      prev.map((u) => {
-        if (u.id !== id) return u;
-        const newStatus = u.status === "active" ? "inactive" : "active";
-        toast.success(`User ${newStatus === "active" ? "activated" : "deactivated"}`, { description: u.name });
-        return { ...u, status: newStatus as "active" | "inactive" };
-      })
-    );
+    const user = users.find((u) => u.id === id);
+    toast.info("User status is controlled from the secure backend user profile rules.", { description: user?.name });
   };
 
   const counts = {
