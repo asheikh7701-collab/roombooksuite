@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import { Eye, EyeOff, Mail, Lock, ArrowRight, DoorOpen } from "lucide-react";
 import { toast } from "sonner";
 import { useApp } from "@/context/AppContext";
@@ -38,6 +39,16 @@ const UserLogin = () => {
     if (result.error) toast.error(result.error);
   };
 
+  const handleForgotPassword = async () => {
+    if (!email) {
+      toast.error("Enter your email address first.");
+      return;
+    }
+    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/reset-password` });
+    if (error) toast.error(error.message);
+    else toast.success("Password reset email sent.");
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-background">
       <header className="mb-12 flex flex-col items-center">
@@ -73,7 +84,7 @@ const UserLogin = () => {
               <div className="space-y-2">
                 <div className="flex justify-between items-center px-1">
                   <label className="block text-xs font-bold uppercase tracking-widest text-on-surface-variant">Password</label>
-                  {isLogin && <button type="button" className="text-xs font-semibold text-secondary hover:underline">Forgot Password?</button>}
+                  {isLogin && <button type="button" onClick={handleForgotPassword} className="text-xs font-semibold text-secondary hover:underline">Forgot Password?</button>}
                 </div>
                 <div className="relative">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-outline" />
