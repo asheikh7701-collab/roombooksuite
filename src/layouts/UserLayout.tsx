@@ -34,7 +34,13 @@ const UserLayout = () => {
       </div>
 
       <nav className="flex-grow space-y-1">
-        {navItems.map((item) => (
+        {navItems.filter((item) => {
+          if (item.to.endsWith("dashboard")) return currentUser.permissions.canViewDashboard;
+          if (item.to.endsWith("book")) return currentUser.permissions.canBookRooms;
+          if (item.to.endsWith("reservations")) return currentUser.permissions.canViewReservations;
+          if (item.to.endsWith("profile")) return currentUser.permissions.canManageProfile;
+          return true;
+        }).map((item) => (
           <NavLink
             key={item.to}
             to={item.to}
