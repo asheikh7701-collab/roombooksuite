@@ -19,7 +19,7 @@ const BookRoom = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [bookingComplete, setBookingComplete] = useState(false);
 
-  const availableRooms = rooms.filter((r) => r.status !== "maintenance");
+  const availableRooms = rooms.filter((r) => r.status === "available");
   const selectedRoomData = rooms.find((r) => r.id === selectedRoom);
 
   const handleConfirmBooking = async () => {
@@ -146,11 +146,7 @@ const BookRoom = () => {
                           <Check className="w-4 h-4" />
                         </div>
                       )}
-                      {room.status === "occupied" && (
-                        <div className="absolute inset-0 bg-foreground/50 flex items-center justify-center">
-                          <span className="bg-foreground/80 text-primary-foreground px-4 py-2 rounded-lg font-bold text-sm">Currently Occupied</span>
-                        </div>
-                      )}
+
                     </div>
                     <div className="p-5">
                       <h3 className="font-bold text-primary mb-1">{room.name}</h3>

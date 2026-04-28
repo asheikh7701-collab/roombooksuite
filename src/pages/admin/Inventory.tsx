@@ -110,7 +110,7 @@ const AdminInventory = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "available": return <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-secondary/10 text-secondary"><CheckCircle className="w-3 h-3" /> Available</span>;
-      case "occupied": return <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-primary/10 text-primary"><Users className="w-3 h-3" /> Occupied</span>;
+      case "inactive": return <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-primary/10 text-primary"><Users className="w-3 h-3" /> Inactive</span>;
       case "maintenance": return <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-600"><Wrench className="w-3 h-3" /> Maintenance</span>;
       default: return null;
     }
@@ -136,7 +136,7 @@ const AdminInventory = () => {
         <label className="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1">Status</label>
         <select value={editStatus} onChange={(e) => setEditStatus(e.target.value as Room["status"])} className="w-full px-3 py-2 bg-surface-container-low border-0 rounded-lg text-foreground focus:ring-2 focus:ring-secondary/40">
           <option value="available">Available</option>
-          <option value="occupied">Occupied</option>
+          <option value="inactive">Inactive</option>
           <option value="maintenance">Maintenance</option>
         </select>
       </div>
