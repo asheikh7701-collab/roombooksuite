@@ -12,8 +12,10 @@ const navItems = [
 
 const UserLayout = () => {
   const navigate = useNavigate();
-  const { currentUser, reservations } = useApp();
+  const { currentUser, reservations, signOut, loading, session } = useApp();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  if (!loading && !session) navigate("/");
 
   const notifications = reservations.filter((r) => r.status === "pending" && r.bookedBy === currentUser.name).length;
 
@@ -54,7 +56,7 @@ const UserLayout = () => {
         <button className="mx-2 px-4 py-3 flex items-center gap-3 font-medium text-sm text-muted-foreground hover:bg-surface-container-high w-full transition-all duration-200 rounded-lg">
           <HelpCircle className="w-5 h-5" /> Support
         </button>
-        <button onClick={() => { navigate("/"); setSidebarOpen(false); }} className="mx-2 px-4 py-3 flex items-center gap-3 font-medium text-sm text-destructive hover:bg-error-container w-full transition-all duration-200 rounded-lg">
+        <button onClick={async () => { await signOut(); navigate("/"); setSidebarOpen(false); }} className="mx-2 px-4 py-3 flex items-center gap-3 font-medium text-sm text-destructive hover:bg-error-container w-full transition-all duration-200 rounded-lg">
           <LogOut className="w-5 h-5" /> Sign Out
         </button>
       </div>
