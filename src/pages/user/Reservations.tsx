@@ -22,7 +22,7 @@ import {
 import { TIME_SLOTS } from "@/data/appData";
 
 const UserReservations = () => {
-  const { reservations, rooms, cancelReservation, updateReservation } = useApp();
+  const { reservations, rooms, cancelReservation, updateReservation, currentUser } = useApp();
   const [tab, setTab] = useState<"upcoming" | "past">("upcoming");
   const [cancelTarget, setCancelTarget] = useState<string | null>(null);
   const [modifyTarget, setModifyTarget] = useState<string | null>(null);
@@ -31,15 +31,19 @@ const UserReservations = () => {
   const [modifyEnd, setModifyEnd] = useState("");
   const [modifyTitle, setModifyTitle] = useState("");
 
-  const userReservations = reservations.filter((r) => r.bookedBy === "Alex Sterling");
+  const userReservations = reservations.filter((r) => r.bookedBy === currentUser.name);
   const upcoming = userReservations.filter((r) => r.status === "confirmed" || r.status === "pending");
   const past = userReservations.filter((r) => r.status === "completed" || r.status === "cancelled");
   const displayed = tab === "upcoming" ? upcoming : past;
 
-  const handleCancel = () => {
+  const handleCancel = async () => {
     if (!cancelTarget) return;
-    cancelReservation(cancelTarget);
-    toast.success("Reservation cancelled", { description: "Your booking has been cancelled successfully." });
+    try {
+      await cancelReservation(cancelTarget);
+      toast.success("Reservation cancelled", { description: "Your booking has been cancelled successfully." });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not cancel reservation.");
+    }
     setCancelTarget(null);
   };
 
@@ -53,15 +57,19 @@ const UserReservations = () => {
     setModifyTitle(res.title);
   };
 
-  const handleModify = () => {
+  const handleModify = async () => {
     if (!modifyTarget) return;
-    updateReservation(modifyTarget, {
-      date: modifyDate,
-      startTime: modifyStart,
-      endTime: modifyEnd,
-      title: modifyTitle,
-    });
-    toast.success("Reservation updated", { description: "Your booking has been modified." });
+    try {
+      await updateReservation(modifyTarget, {
+        date: modifyDate,
+        startTime: modifyStart,
+        endTime: modifyEnd,
+        title: modifyTitle,
+      });
+      toast.success("Reservation updated", { description: "Your booking has been modified." });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not update reservation.");
+    }
     setModifyTarget(null);
   };
 

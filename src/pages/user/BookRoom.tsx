@@ -9,7 +9,7 @@ const BookRoom = () => {
   const { rooms, addReservation } = useApp();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
-  const [selectedRoom, setSelectedRoom] = useState<number | null>(null);
+  const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedStart, setSelectedStart] = useState("");
   const [selectedEnd, setSelectedEnd] = useState("");
@@ -22,31 +22,31 @@ const BookRoom = () => {
   const availableRooms = rooms.filter((r) => r.status !== "maintenance");
   const selectedRoomData = rooms.find((r) => r.id === selectedRoom);
 
-  const handleConfirmBooking = () => {
+  const handleConfirmBooking = async () => {
     if (!selectedRoom || !selectedRoomData) return;
     setIsSubmitting(true);
 
-    setTimeout(() => {
-      addReservation({
+    try {
+      await addReservation({
         roomId: selectedRoom,
-        roomName: selectedRoomData.name,
         date: selectedDate,
         startTime: selectedStart,
         endTime: selectedEnd,
-        floor: selectedRoomData.floor,
         attendees: parseInt(attendeeCount) || 2,
         status: "confirmed",
         title: meetingTitle || "Untitled Meeting",
-        bookedBy: "Alex Sterling",
         attendeeEmails,
       });
 
-      setIsSubmitting(false);
       setBookingComplete(true);
       toast.success("Room booked successfully!", {
         description: `${selectedRoomData.name} on ${selectedDate} from ${selectedStart} to ${selectedEnd}`,
       });
-    }, 800);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not book this room.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (bookingComplete) {
