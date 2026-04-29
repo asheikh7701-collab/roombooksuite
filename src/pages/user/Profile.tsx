@@ -5,7 +5,7 @@ import { toast } from "sonner";
 
 const UserProfile = () => {
   const { currentUser, reservations, updateProfile } = useApp();
-  const userReservations = reservations.filter((r) => r.bookedBy === currentUser.name);
+  const userReservations = reservations.filter((r) => r.userId === currentUser.id);
 
   const [name, setName] = useState(currentUser.name);
   const [email, setEmail] = useState(currentUser.email);
@@ -36,7 +36,7 @@ const UserProfile = () => {
               <div className="w-24 h-24 rounded-full bg-primary-container flex items-center justify-center">
                 <User className="w-10 h-10 text-primary-foreground" />
               </div>
-              <button className="absolute bottom-0 right-0 w-8 h-8 bg-secondary text-secondary-foreground rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform">
+              <button type="button" onClick={() => toast.info("Avatar uploads will be available after file storage is enabled.")} className="absolute bottom-0 right-0 w-8 h-8 bg-secondary text-secondary-foreground rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform">
                 <Camera className="w-4 h-4" />
               </button>
             </div>
