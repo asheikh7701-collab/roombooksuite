@@ -51,7 +51,7 @@ const AdminLayout = () => {
       </nav>
 
       <div className="mt-auto px-2 flex flex-col gap-1 pt-8">
-        <button onClick={() => { navigate("/admin/reservations"); setSidebarOpen(false); }} className="mx-2 px-4 py-4 mb-4 bg-primary text-primary-foreground rounded-xl font-semibold flex items-center justify-center gap-2 shadow-lg">
+        <button onClick={() => { navigate("/admin/reservations?new=1"); setSidebarOpen(false); }} className="mx-2 px-4 py-4 mb-4 bg-primary text-primary-foreground rounded-xl font-semibold flex items-center justify-center gap-2 shadow-lg">
           <Plus className="w-4 h-4" /> New Reservation
         </button>
         <button onClick={async () => { await signOut(); navigate("/"); setSidebarOpen(false); }} className="mx-2 px-4 py-3 flex items-center gap-3 font-medium text-sm text-destructive hover:bg-error-container w-full transition-all duration-200 rounded-lg">
