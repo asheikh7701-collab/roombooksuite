@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { TIME_SLOTS } from "@/data/appData";
 
 const BookRoom = () => {
-  const { rooms, addReservation } = useApp();
+  const { rooms, reservations, addReservation, currentUser } = useApp();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
@@ -21,9 +21,27 @@ const BookRoom = () => {
 
   const availableRooms = rooms.filter((r) => r.status === "available");
   const selectedRoomData = rooms.find((r) => r.id === selectedRoom);
+  const roomSchedule = reservations.filter((r) => r.roomId === selectedRoom && r.date === selectedDate && r.status !== "cancelled");
+
+  const isTimeInvalid = selectedStart && selectedEnd ? selectedEnd <= selectedStart : false;
+
+  if (!currentUser.permissions.canBookRooms) {
+    return (
+      <div className="max-w-2xl mx-auto px-8 py-20 text-center">
+        <Calendar className="w-16 h-16 text-outline-variant mx-auto mb-4" />
+        <h1 className="text-3xl font-extrabold tracking-tight text-primary mb-3">Booking Access Restricted</h1>
+        <p className="text-on-surface-variant mb-8">Your administrator has not enabled room booking for this account.</p>
+        <button onClick={() => navigate("/user/dashboard")} className="px-6 py-3 bg-primary text-primary-foreground rounded-xl font-bold">Back to Dashboard</button>
+      </div>
+    );
+  }
 
   const handleConfirmBooking = async () => {
     if (!selectedRoom || !selectedRoomData) return;
+    if (isTimeInvalid) {
+      toast.error("End time must be after start time.");
+      return;
+    }
     setIsSubmitting(true);
 
     try {
@@ -211,8 +229,21 @@ const BookRoom = () => {
                 <button onClick={() => setStep(1)} className="px-6 py-3 bg-surface-container-high text-primary rounded-xl font-semibold flex items-center gap-2">
                   <ChevronLeft className="w-4 h-4" /> Back
                 </button>
+                {roomSchedule.length > 0 && (
+                  <div className="bg-surface-container-lowest rounded-xl p-4">
+                    <p className="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-3">Allocated times for this room</p>
+                    <div className="flex flex-wrap gap-2">
+                      {roomSchedule.map((booking) => (
+                        <span key={booking.id} className="px-3 py-1 rounded-full bg-secondary/10 text-secondary text-xs font-bold">
+                          {booking.startTime} – {booking.endTime}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {isTimeInvalid && <p className="text-sm font-semibold text-destructive">End time must be after start time.</p>}
                 <button
-                  disabled={!selectedDate || !selectedStart || !selectedEnd}
+                  disabled={!selectedDate || !selectedStart || !selectedEnd || !!isTimeInvalid}
                   onClick={() => setStep(3)}
                   className="px-8 py-3 bg-primary text-primary-foreground rounded-xl font-bold flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
                 >
