@@ -20,6 +20,7 @@ const AdminReservations = () => {
 
   const activeUsers = users.filter((u) => u.status === "active");
   const activeRooms = rooms.filter((r) => r.status === "available");
+  const selectedRoomSchedule = reservations.filter((r) => r.roomId === newBooking.roomId && r.date === newBooking.date && r.status !== "cancelled");
 
   const handleCancel = async () => {
     if (!cancelTarget) return;
@@ -44,6 +45,10 @@ const AdminReservations = () => {
   const handleCreateReservation = async () => {
     if (!newBooking.userId || !newBooking.roomId || !newBooking.date || !newBooking.startTime || !newBooking.endTime || !newBooking.title) {
       toast.error("Complete all required reservation fields.");
+      return;
+    }
+    if (newBooking.endTime <= newBooking.startTime) {
+      toast.error("End time must be after start time.");
       return;
     }
     try {
@@ -143,6 +148,14 @@ const AdminReservations = () => {
               <select value={newBooking.endTime} onChange={(e) => setNewBooking({ ...newBooking, endTime: e.target.value })} className="px-3 py-2 bg-surface-container-low border-0 rounded-lg"><option value="">End time</option>{TIME_SLOTS.map((slot) => <option key={slot} value={slot}>{slot}</option>)}</select>
             </div>
             <textarea value={newBooking.notes} onChange={(e) => setNewBooking({ ...newBooking, notes: e.target.value })} placeholder="Notes or attendee emails" rows={3} className="w-full px-3 py-2 bg-surface-container-low border-0 rounded-lg resize-none" />
+            {selectedRoomSchedule.length > 0 && (
+              <div className="bg-surface-container-low rounded-lg p-3">
+                <p className="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2">Existing allocations</p>
+                <div className="flex flex-wrap gap-2">
+                  {selectedRoomSchedule.map((booking) => <span key={booking.id} className="px-2 py-1 rounded-full bg-secondary/10 text-secondary text-xs font-bold">{booking.startTime} – {booking.endTime}</span>)}
+                </div>
+              </div>
+            )}
           </div>
           <div className="flex justify-end gap-2"><button onClick={() => setShowNew(false)} className="px-4 py-2 bg-surface-container-high text-primary rounded-lg font-semibold text-sm">Cancel</button><button onClick={handleCreateReservation} className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-bold text-sm flex items-center gap-2"><Plus className="w-3 h-3" /> Create Reservation</button></div>
         </DialogContent>
