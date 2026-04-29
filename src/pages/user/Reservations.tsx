@@ -15,6 +15,7 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
@@ -31,7 +32,7 @@ const UserReservations = () => {
   const [modifyEnd, setModifyEnd] = useState("");
   const [modifyTitle, setModifyTitle] = useState("");
 
-  const userReservations = reservations.filter((r) => r.bookedBy === currentUser.name);
+  const userReservations = reservations.filter((r) => r.userId === currentUser.id);
   const upcoming = userReservations.filter((r) => r.status === "confirmed" || r.status === "pending");
   const past = userReservations.filter((r) => r.status === "completed" || r.status === "cancelled");
   const displayed = tab === "upcoming" ? upcoming : past;
@@ -60,6 +61,10 @@ const UserReservations = () => {
   const handleModify = async () => {
     if (!modifyTarget) return;
     try {
+      if (modifyEnd <= modifyStart) {
+        toast.error("End time must be after start time.");
+        return;
+      }
       await updateReservation(modifyTarget, {
         date: modifyDate,
         startTime: modifyStart,
@@ -194,9 +199,10 @@ const UserReservations = () => {
 
       {/* Modify Dialog */}
       <Dialog open={!!modifyTarget} onOpenChange={() => setModifyTarget(null)}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md" aria-describedby="modify-reservation-description">
           <DialogHeader>
             <DialogTitle>Modify Reservation</DialogTitle>
+            <DialogDescription id="modify-reservation-description">Update the date, time, or title for this booking.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div>
