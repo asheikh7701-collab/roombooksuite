@@ -34,7 +34,7 @@ const UserLayout = () => {
     }
   }, [loading, session, currentUser.permissions, navigate]);
 
-  const notifications = reservations.filter((r) => r.status === "pending" && r.bookedBy === currentUser.name).length;
+  const notifications = reservations.filter((r) => r.status === "pending" && r.userId === currentUser.id).length;
 
   const sidebar = (
     <>
