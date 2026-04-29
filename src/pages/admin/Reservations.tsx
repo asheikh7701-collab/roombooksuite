@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useApp } from "@/context/AppContext";
 import { Calendar, CheckCircle, AlertCircle, XCircle, Search, Plus } from "lucide-react";
 import { toast } from "sonner";
@@ -8,6 +9,7 @@ import { TIME_SLOTS } from "@/data/appData";
 
 const AdminReservations = () => {
   const { reservations, rooms, users, cancelReservation, updateReservation, addReservation } = useApp();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [filter, setFilter] = useState<"all" | "confirmed" | "pending" | "completed" | "cancelled">("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [cancelTarget, setCancelTarget] = useState<string | null>(null);
@@ -21,6 +23,13 @@ const AdminReservations = () => {
   const activeUsers = users.filter((u) => u.status === "active");
   const activeRooms = rooms.filter((r) => r.status === "available");
   const selectedRoomSchedule = reservations.filter((r) => r.roomId === newBooking.roomId && r.date === newBooking.date && r.status !== "cancelled");
+
+  useEffect(() => {
+    if (searchParams.get("new") === "1") {
+      setShowNew(true);
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   const handleCancel = async () => {
     if (!cancelTarget) return;
