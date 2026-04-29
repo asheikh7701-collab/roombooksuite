@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
-import { LayoutDashboard, Package, BarChart3, CalendarDays, Users, Settings, HelpCircle, DoorOpen, LogOut, Bell, Search, Plus, Menu, X } from "lucide-react";
+import { LayoutDashboard, Package, BarChart3, CalendarDays, Users, DoorOpen, LogOut, Bell, Search, Plus, Menu, X } from "lucide-react";
 import { useApp } from "@/context/AppContext";
 
 const navItems = [
@@ -51,14 +51,8 @@ const AdminLayout = () => {
       </nav>
 
       <div className="mt-auto px-2 flex flex-col gap-1 pt-8">
-        <button onClick={() => { navigate("/admin/reservations"); setSidebarOpen(false); }} className="mx-2 px-4 py-4 mb-4 bg-primary text-primary-foreground rounded-xl font-semibold flex items-center justify-center gap-2 shadow-lg">
+        <button onClick={() => { navigate("/admin/reservations?new=1"); setSidebarOpen(false); }} className="mx-2 px-4 py-4 mb-4 bg-primary text-primary-foreground rounded-xl font-semibold flex items-center justify-center gap-2 shadow-lg">
           <Plus className="w-4 h-4" /> New Reservation
-        </button>
-        <button className="mx-2 px-4 py-3 flex items-center gap-3 font-medium text-sm text-muted-foreground hover:bg-surface-container-high w-full transition-all duration-200 rounded-lg">
-          <Settings className="w-5 h-5" /> Settings
-        </button>
-        <button className="mx-2 px-4 py-3 flex items-center gap-3 font-medium text-sm text-muted-foreground hover:bg-surface-container-high w-full transition-all duration-200 rounded-lg">
-          <HelpCircle className="w-5 h-5" /> Support
         </button>
         <button onClick={async () => { await signOut(); navigate("/"); setSidebarOpen(false); }} className="mx-2 px-4 py-3 flex items-center gap-3 font-medium text-sm text-destructive hover:bg-error-container w-full transition-all duration-200 rounded-lg">
           <LogOut className="w-5 h-5" /> Sign Out

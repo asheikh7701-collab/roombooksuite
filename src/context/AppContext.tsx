@@ -31,7 +31,7 @@ interface AppContextType {
   updateProfile: (updates: { fullName?: string; email?: string; department?: string; phone?: string; notificationEmail?: boolean; notificationPush?: boolean }) => Promise<void>;
   createUser: (payload: { email: string; password: string; fullName: string; department?: string; jobTitle?: string; role: "user" | "admin"; permissions: UserPermissions }) => Promise<void>;
   updateUserAccess: (userId: string, updates: { status?: "active" | "inactive"; role?: "user" | "admin"; permissions?: UserPermissions }) => Promise<void>;
-  addReservation: (res: Omit<Reservation, "id" | "createdAt" | "bookedBy" | "roomName" | "floor"> & { userId?: string }) => Promise<void>;
+  addReservation: (res: Omit<Reservation, "id" | "createdAt" | "bookedBy" | "roomName" | "floor" | "userId"> & { userId?: string }) => Promise<void>;
   cancelReservation: (id: string) => Promise<void>;
   updateReservation: (id: string, updates: Partial<Reservation>) => Promise<void>;
   addRoom: (room: Omit<Room, "id">) => Promise<void>;
@@ -191,6 +191,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       const organizer = profileByUser.get(reservation.user_id);
       return {
         id: reservation.id,
+        userId: reservation.user_id,
         roomId: reservation.room_id,
         roomName: room?.name ?? "Deleted Room",
         date: reservation.reservation_date,
@@ -314,7 +315,17 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const createUser = async (payload: { email: string; password: string; fullName: string; department?: string; jobTitle?: string; role: "user" | "admin"; permissions: UserPermissions }) => {
-    const { error } = await supabase.functions.invoke("admin-create-user", { body: payload });
+    const { error } = await supabase.functions.invoke("admin-create-user", {
+      body: {
+        ...payload,
+        permissions: {
+          can_view_dashboard: payload.permissions.canViewDashboard,
+          can_book_rooms: payload.permissions.canBookRooms,
+          can_view_reservations: payload.permissions.canViewReservations,
+          can_manage_profile: payload.permissions.canManageProfile,
+        },
+      },
+    });
     if (error) throw error;
     await refreshData();
   };
@@ -345,8 +356,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     await refreshData();
   };
 
-  const addReservation = async (res: Omit<Reservation, "id" | "createdAt" | "bookedBy" | "roomName" | "floor"> & { userId?: string }) => {
+  const addReservation = async (res: Omit<Reservation, "id" | "createdAt" | "bookedBy" | "roomName" | "floor" | "userId"> & { userId?: string }) => {
     if (!authUser) throw new Error("You must be signed in to book a room.");
+    if (role !== "admin" && !permissions.canBookRooms) throw new Error("Your account does not have booking access.");
+    if (toDbTime(res.endTime) <= toDbTime(res.startTime)) throw new Error("End time must be after start time.");
     const { error } = await supabase.from("reservations").insert({
       room_id: res.roomId,
       user_id: res.userId ?? authUser.id,

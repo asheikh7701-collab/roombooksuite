@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useApp } from "@/context/AppContext";
-import { LayoutDashboard, CalendarPlus, CalendarDays, User, Settings, HelpCircle, DoorOpen, LogOut, Bell, Search, Menu, X } from "lucide-react";
+import { LayoutDashboard, CalendarPlus, CalendarDays, User, DoorOpen, LogOut, Bell, Search, Menu, X } from "lucide-react";
 
 const navItems = [
   { to: "/user/dashboard", icon: LayoutDashboard, label: "Dashboard" },
@@ -19,7 +19,22 @@ const UserLayout = () => {
     if (!loading && !session) navigate("/");
   }, [loading, session, navigate]);
 
-  const notifications = reservations.filter((r) => r.status === "pending" && r.bookedBy === currentUser.name).length;
+  useEffect(() => {
+    if (loading || !session) return;
+    const routeAccess = [
+      { path: "/user/dashboard", allowed: currentUser.permissions.canViewDashboard },
+      { path: "/user/book", allowed: currentUser.permissions.canBookRooms },
+      { path: "/user/reservations", allowed: currentUser.permissions.canViewReservations },
+      { path: "/user/profile", allowed: currentUser.permissions.canManageProfile },
+    ];
+    const currentPath = routeAccess.find((item) => window.location.pathname.startsWith(item.path));
+    if (currentPath?.allowed === false) {
+      const fallback = routeAccess.find((item) => item.allowed)?.path ?? "/";
+      navigate(fallback, { replace: true });
+    }
+  }, [loading, session, currentUser.permissions, navigate]);
+
+  const notifications = reservations.filter((r) => r.status === "pending" && r.userId === currentUser.id).length;
 
   const sidebar = (
     <>
@@ -58,12 +73,6 @@ const UserLayout = () => {
       </nav>
 
       <div className="mt-auto px-2 space-y-1">
-        <button className="mx-2 px-4 py-3 flex items-center gap-3 font-medium text-sm text-muted-foreground hover:bg-surface-container-high w-full transition-all duration-200 rounded-lg">
-          <Settings className="w-5 h-5" /> Settings
-        </button>
-        <button className="mx-2 px-4 py-3 flex items-center gap-3 font-medium text-sm text-muted-foreground hover:bg-surface-container-high w-full transition-all duration-200 rounded-lg">
-          <HelpCircle className="w-5 h-5" /> Support
-        </button>
         <button onClick={async () => { await signOut(); navigate("/"); setSidebarOpen(false); }} className="mx-2 px-4 py-3 flex items-center gap-3 font-medium text-sm text-destructive hover:bg-error-container w-full transition-all duration-200 rounded-lg">
           <LogOut className="w-5 h-5" /> Sign Out
         </button>

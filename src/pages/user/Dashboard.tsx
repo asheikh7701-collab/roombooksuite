@@ -8,7 +8,7 @@ const UserDashboard = () => {
   const navigate = useNavigate();
 
   const upcomingReservations = reservations.filter(
-    (r) => r.status === "confirmed" || r.status === "pending"
+    (r) => r.userId === currentUser.id && (r.status === "confirmed" || r.status === "pending")
   );
   const availableRooms = rooms.filter((r) => r.status === "available");
 
@@ -106,9 +106,11 @@ const UserDashboard = () => {
       <section>
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-bold tracking-tight text-primary">Available Rooms</h2>
-          <button onClick={() => navigate("/user/book")} className="text-sm font-semibold text-secondary hover:underline flex items-center gap-1">
-            Book now <ArrowRight className="w-3 h-3" />
-          </button>
+          {currentUser.permissions.canBookRooms && (
+            <button onClick={() => navigate("/user/book")} className="text-sm font-semibold text-secondary hover:underline flex items-center gap-1">
+              Book now <ArrowRight className="w-3 h-3" />
+            </button>
+          )}
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {availableRooms.slice(0, 6).map((room) => (
